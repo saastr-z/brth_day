@@ -157,15 +157,15 @@
       </div>
       <button id="spinBtn" class="btn" onclick="spinWheel()">КРУТИТЬ РУЛЕТКУ (5 🪙)</button>
       <p style="font-size: 13px; color: #8e90b0; margin-top: 14px; line-height: 1.4;">
-        Выбивай главные призы, монеты или утешительные подарки!<br>Крутка стоит 5 монет.
+        Главный приз можно забрать или крутить дальше за 5 монет!<br>Стоимость крутки: 5 монет.
       </p>
     </div>
 
     <div id="claimedSection" style="display: none;">
       <div class="claimed-box">
         <div style="font-size: 60px;" id="claimedIcon">🎁</div>
-        <h2 style="margin: 12px 0 6px; color: #00ff73;">ГЛАВНЫЙ ПРИЗ ВЫИГРАН!</h2>
-        <p style="font-size: 14px; color: #ccc;">Твой супер-приз на День Рождения:</p>
+        <h2 style="margin: 12px 0 6px; color: #00ff73;">ПОДАРОК ЗАБРАН!</h2>
+        <p style="font-size: 14px; color: #ccc;">Твой официальный приз на День Рождения:</p>
         <h3 style="font-size: 22px; color: var(--gold); margin: 14px 0;" id="claimedTitle"></h3>
         <p style="font-size: 12px; color: #888;">Заскринь этот экран и отправь Саше 🎉</p>
       </div>
@@ -179,7 +179,7 @@
 
     <div class="card">
       <div class="card-info">
-        <h3>🦊 Фурри-Ран (Твой Лисенок)</h3>
+        <h3>🦊 Фурри-Ран (Лисенок)</h3>
         <p>Прыгай кастомным лисенком через гетеро-блоки. Цель: 150 м.</p>
         <div class="reward-badge">Награда: +5 🪙</div>
       </div>
@@ -217,10 +217,10 @@
   <!-- Модалка выпадения приза -->
   <div id="prizeModal" class="modal">
     <div class="modal-content">
-      <div style="font-size: 13px; color: #aaa; text-transform: uppercase; letter-spacing: 1px;" id="modalSubtitle">Твой выигрыш:</div>
+      <div style="font-size: 13px; color: #aaa; text-transform: uppercase; letter-spacing: 1px;" id="modalSubtitle">ТЕБЕ ВЫПАЛО:</div>
       <div class="prize-icon" id="modalPrizeIcon">🎁</div>
       <div class="prize-title" id="modalPrizeTitle">Название приза</div>
-      <button class="btn" id="modalActionBtn" onclick="handleModalAction()">✅ ЗАБРАТЬ</button>
+      <div id="modalButtonsContainer"></div>
     </div>
   </div>
 
@@ -245,39 +245,30 @@
   const tg = window.Telegram.WebApp;
   if (tg) tg.expand();
 
-  // Загрузка пользовательского лисенка и Шелли через base64
-  const foxImg = new Image();
-  foxImg.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAHNSURBVHja7NvLTsJgGMbxgzZowgU3LqALiA78ABfctbpxAYKL6GbsCngC97pwbdy4sfEDuHAvvLgALiBu7L2ff0hK05Z2Zp4v+SQkZ36/p3OaM47jbF80C9CAnY4e0A9AH9TjB6AO6oM/WAnugPqgj8G9g/rg32wH1Ecf6IHp0P0aQATj8cjjqXJ8Lw1NmgBNoz44Y+yBPsT4OQ5AHOhBf4ABQAMQAAMQAAMAAPhJAP4+v0A3K0DkQvO9D+D8wP2O3K8L6AByvS5AH0jA/A4Af0jA104GIOj3hG/7I1064v34L2wH9HAPLgN3H8LwH2yDABSAAQMhAPwAHAAAfAAA3AQAAwEAAAEAmD4LAKDvH14AAAAASUVORK5YII='; // Плейсхолдер картинки подменяется на загруженную пользователем текстуру
-
-  const shellyImg = new Image();
-  shellyImg.src = 'data:image/webp;base64,UklGRq4AAABXRUJQVlA4WAoAAAAQAAAAQwAAQwAAQUxQSF4QAAABG2hvdGVsdGFyZ2V0IDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIy.svg'; 
-  
-  // Создадим картинки программно из реальных данных загруженных файлов для 100% стабильности
   const customFoxImg = new Image();
   customFoxImg.src = "12345.png";
 
   const customShellyImg = new Image();
   customShellyImg.src = "шелли.webp";
 
-  // Сектора колеса: Главные призы, Монеты и Утешительные призы
+  // Сектора колеса: Главные призы, Монеты и Утешительные
   const PRIZES = [
     { id: 0, title: "10 гр зеленого салата", short: "10г салата", icon: "🥗", type: "main", c1: "#27ae60", c2: "#1e8449" },
     { id: 1, title: "+5 Монет на баланс!", short: "+5 монет", icon: "🪙", type: "coins", val: 5, c1: "#f39c12", c2: "#d35400" },
-    { id: 2, title: "Поездка в город РФ за счет Саши", short: "Поездка в РФ", icon: "✈️", type: "main", c1: "#2980b9", c2: "#1f618d" },
-    { id: 3, title: "Утешительный приз: Стикерпак от Саши", short: "Стикерпак", icon: "🎁", type: "comfort", c1: "#8e44ad", c2: "#6c3483" },
+    { id: 2, title: "Поездка в желаемый город РФ за счет Саши", short: "Поездка в РФ", icon: "✈️", type: "main", c1: "#2980b9", c2: "#1f618d" },
+    { id: 3, title: "Стикерпак от Саши", short: "Стикерпак", icon: "📦", type: "comfort", c1: "#8e44ad", c2: "#6c3483" },
     { id: 4, title: "Блок Мальборо Арома Фреш", short: "Блок Мальборо", icon: "🚬", type: "main", c1: "#c0392b", c2: "#922b21" },
     { id: 5, title: "+10 Монет на баланс!", short: "+10 монет", icon: "🪙", type: "coins", val: 10, c1: "#f1c40f", c2: "#d68910" },
     { id: 6, title: "День рождения за счет Саши", short: "ДР от Саши", icon: "🥳", type: "main", c1: "#9b59b6", c2: "#7d3c98" },
-    { id: 7, title: "Утешительный приз: Энергетик", short: "Энергетик", icon: "⚡", type: "comfort", c1: "#16a085", c2: "#117864" },
-    { id: 8, title: "5 уроков по органической химии", short: "5 уроков химии", icon: "🧪", type: "main", c1: "#1abc9c", c2: "#148f77" },
-    { id: 9, title: "+5 Монет на баланс!", short: "+5 монет", icon: "🪙", type: "coins", val: 5, c1: "#e67e22", c2: "#b96316" },
-    { id: 10, title: "Абонемент на полгода танцев на батутах", short: "Батуты 6 мес", icon: "🤸", type: "main", c1: "#d35400", c2: "#a04000" },
-    { id: 11, title: "Новый бонг", short: "Новый бонг", icon: "🏺", type: "main", c1: "#27ae60", c2: "#145a32" },
-    { id: 12, title: "Утешительный приз: Мемная открытка", short: "Открытка", icon: "💌", type: "comfort", c1: "#2980b9", c2: "#154360" },
-    { id: 13, title: "5 Бравл Пассов", short: "5 Brawl Pass", icon: "🎟", type: "main", c1: "#e74c3c", c2: "#78281f" }
+    { id: 7, title: "Энергетик", short: "Энергетик", icon: "⚡", type: "comfort", c1: "#16a085", c2: "#117864" },
+    { id: 8, title: "5 бесплатных уроков по органической химии", short: "5 уроков химии", icon: "🧪", type: "main", c1: "#1abc9c", c2: "#148f77" },
+    { id: 9, title: "Абонемент на полгода танцев на батутах", short: "Батуты 6 мес", icon: "🤸", type: "main", c1: "#d35400", c2: "#a04000" },
+    { id: 10, title: "Новый бонг", short: "Новый бонг", icon: "🏺", type: "main", c1: "#27ae60", c2: "#145a32" },
+    { id: 11, title: "Мемная открытка", short: "Открытка", icon: "💌", type: "comfort", c1: "#2980b9", c2: "#154360" },
+    { id: 12, title: "5 Бравл Пассов", short: "5 Brawl Pass", icon: "🎟", type: "main", c1: "#e74c3c", c2: "#78281f" }
   ];
 
-  let state = JSON.parse(localStorage.getItem('bday_app_state_v3')) || {
+  let state = JSON.parse(localStorage.getItem('bday_app_state_v5')) || {
     coins: 10,
     game1Done: false,
     game2Done: false,
@@ -291,7 +282,7 @@
   let currentWonPrize = null;
 
   function saveState() {
-    localStorage.setItem('bday_app_state_v3', JSON.stringify(state));
+    localStorage.setItem('bday_app_state_v5', JSON.stringify(state));
     updateUI();
   }
 
@@ -329,7 +320,6 @@
     btn.classList.add('active');
   }
 
-  // Рисование колеса на 14 секторов с монетами и утешительными призами
   const wheelCanvas = document.getElementById('wheelCanvas');
   const wCtx = wheelCanvas.getContext('2d');
 
@@ -348,12 +338,12 @@
     wCtx.strokeStyle = "#ffd700";
     wCtx.stroke();
 
-    for (let i = 0; i < 28; i++) {
-      const a = (i * 2 * Math.PI) / 28;
+    for (let i = 0; i < 26; i++) {
+      const a = (i * 2 * Math.PI) / 26;
       const bx = cx + Math.cos(a) * (r + 12);
       const by = cy + Math.sin(a) * (r + 12);
       wCtx.beginPath();
-      wCtx.arc(bx, by, 3.5, 0, 2 * Math.PI);
+      wCtx.arc(bx, by, 4.5, 0, 2 * Math.PI);
       wCtx.fillStyle = (i % 2 === 0) ? "#fff" : "#ffea00";
       wCtx.fill();
     }
@@ -372,8 +362,8 @@
       wCtx.fillStyle = grad;
       wCtx.fill();
 
-      wCtx.lineWidth = 3;
-      wCtx.strokeStyle = "rgba(255,255,255,0.25)";
+      wCtx.lineWidth = 4;
+      wCtx.strokeStyle = "rgba(255,255,255,0.3)";
       wCtx.stroke();
       wCtx.restore();
 
@@ -383,26 +373,26 @@
       wCtx.textAlign = "right";
       wCtx.fillStyle = "#ffffff";
       wCtx.shadowColor = "rgba(0,0,0,0.85)";
-      wCtx.shadowBlur = 5;
+      wCtx.shadowBlur = 6;
 
-      wCtx.font = "34px 'Apple Color Emoji', sans-serif";
-      wCtx.fillText(PRIZES[i].icon, r - 35, 12);
+      wCtx.font = "44px 'Apple Color Emoji', sans-serif";
+      wCtx.fillText(PRIZES[i].icon, r - 30, 16);
 
-      wCtx.font = "800 17px -apple-system, sans-serif";
-      wCtx.fillText(PRIZES[i].short, r - 82, 6);
+      wCtx.font = "900 20px -apple-system, sans-serif";
+      wCtx.fillText(PRIZES[i].short, r - 95, 8);
       wCtx.restore();
     }
 
     wCtx.beginPath();
-    wCtx.arc(cx, cy, 45, 0, 2 * Math.PI);
+    wCtx.arc(cx, cy, 48, 0, 2 * Math.PI);
     wCtx.fillStyle = "#121324";
     wCtx.fill();
-    wCtx.lineWidth = 5;
+    wCtx.lineWidth = 6;
     wCtx.strokeStyle = "#ffd700";
     wCtx.stroke();
 
     wCtx.fillStyle = "#ffd700";
-    wCtx.font = "bold 22px sans-serif";
+    wCtx.font = "bold 26px sans-serif";
     wCtx.textAlign = "center";
     wCtx.textBaseline = "middle";
     wCtx.fillText("SPIN", cx, cy);
@@ -420,7 +410,7 @@
     const sliceDeg = 360 / PRIZES.length;
     const targetDeg = (360 - winIndex * sliceDeg) % 360;
     const extraSpins = 6 * 360;
-    const randomOffset = (Math.random() - 0.5) * (sliceDeg * 0.4);
+    const randomOffset = (Math.random() - 0.5) * (sliceDeg * 0.5);
     
     currentRotation = currentRotation + extraSpins + ((targetDeg - (currentRotation % 360) + 360) % 360) + randomOffset;
     wheelCanvas.style.transform = `rotate(${currentRotation}deg)`;
@@ -433,44 +423,60 @@
   }
 
   function showPrizeModal(prize) {
-    confetti({ particleCount: 130, spread: 80, origin: { y: 0.6 } });
+    confetti({ particleCount: 140, spread: 85, origin: { y: 0.6 } });
     document.getElementById('modalPrizeIcon').innerText = prize.icon;
     document.getElementById('modalPrizeTitle').innerText = prize.title;
-    
-    const sub = document.getElementById('modalSubtitle');
-    const btn = document.getElementById('modalActionBtn');
+
+    const container = document.getElementById('modalButtonsContainer');
+    const subtitle = document.getElementById('modalSubtitle');
+    container.innerHTML = '';
 
     if (prize.type === 'main') {
-      sub.innerText = "🎉 ГЛАВНЫЙ ПРИЗ ВЫИГРАН!";
-      btn.innerText = "✅ ЗАБРАТЬ И ЗАФИКСИРОВАТЬ";
+      // Нормальный приз -> «Забрать и выйти» или «Крутить еще»
+      subtitle.innerText = "ТЕБЕ ВЫПАЛО:";
+      container.innerHTML = `
+        <button class="btn" onclick="claimPrize()">✅ ЗАБРАТЬ И ВЫЙТИ</button>
+        <button class="btn btn-secondary" onclick="spinAgain()" style="margin-top:8px;">${state.coins >= 5 ? '🔄 КРУТИТЬ ЕЩЕ (5 🪙)' : '🕹 В МИНИ-ИГРЫ (НУЖНО 5 🪙)'}</button>
+      `;
     } else if (prize.type === 'coins') {
-      sub.innerText = "🪙 МОНЕТЫ ЗАЧИСЛЕНЫ!";
-      btn.innerText = "🔄 КРУТИТЬ ДАЛЬШЕ";
+      // Монетки -> только кнопка «Забрать и крутить дальше»
+      subtitle.innerText = "🪙 МОНЕТЫ ДОБАВЛЕНЫ!";
+      state.coins += prize.val;
+      saveState();
+      container.innerHTML = `
+        <button class="btn" onclick="closeModalAndSpin()">🔄 ЗАБРАТЬ И КРУТИТЬ ДАЛЬШЕ</button>
+      `;
     } else {
-      sub.innerText = "🎁 УТЕШИТЕЛЬНЫЙ ПОДАРОК!";
-      btn.innerText = "🔄 КРУТИТЬ ДАЛЬШЕ";
+      // Утешительный приз -> только кнопка «Забрать и крутить дальше»
+      subtitle.innerText = "🎁 УТЕШИТЕЛЬНЫЙ ПРИЗ!";
+      container.innerHTML = `
+        <button class="btn" onclick="closeModalAndSpin()">🔄 ЗАБРАТЬ И КРУТИТЬ ДАЛЬШЕ</button>
+      `;
     }
+
     document.getElementById('prizeModal').style.display = 'flex';
   }
 
-  function handleModalAction() {
-    const prize = currentWonPrize;
+  function claimPrize() {
+    state.claimedPrize = currentWonPrize;
+    saveState();
     document.getElementById('prizeModal').style.display = 'none';
+    confetti({ particleCount: 220, spread: 110, origin: { y: 0.5 } });
+  }
 
-    if (prize.type === 'main') {
-      state.claimedPrize = prize;
-      saveState();
-      confetti({ particleCount: 200, spread: 100 });
-    } else if (prize.type === 'coins') {
-      state.coins += prize.val;
-      saveState();
+  function spinAgain() {
+    document.getElementById('prizeModal').style.display = 'none';
+    if (state.coins >= 5) {
+      spinWheel();
     } else {
-      // Утешительный можно просто закрыть и крутить дальше
-      saveState();
+      switchTab('games', document.querySelectorAll('.nav-btn')[1]);
     }
   }
 
-  // Промокод
+  function closeModalAndSpin() {
+    document.getElementById('prizeModal').style.display = 'none';
+  }
+
   function activatePromo() {
     const val = document.getElementById('promoInput').value.trim().toUpperCase();
     const msg = document.getElementById('promoMsg');
@@ -488,7 +494,6 @@
     }
   }
 
-  // Мини-игры
   const gModal = document.getElementById('gameModal');
   const gCanvas = document.getElementById('gameCanvas');
   const ctx = gCanvas.getContext('2d');
@@ -524,10 +529,10 @@
     }, 120);
   }
 
-  // 1. ИГРА С ТОЧНОЙ КАРТИНКОЙ ЛИСЕНКА
+  // 1. ИГРА С ЛИСЕНКОМ
   function initGame1() {
     document.getElementById('gameTitle').innerText = "🦊 Фурри-Ран (Лисенок)";
-    document.getElementById('gameHint').innerText = "Тапай для прыжка через гетеро-блоки! Цель: 150м.";
+    document.getElementById('gameHint').innerText = "Тапай для прыжка! Цель: 150м.";
 
     const W = gCanvas.width, H = gCanvas.height;
     const groundY = H - 75;
@@ -626,7 +631,6 @@
         ctx.fillText("Тапни для перезапуска", W / 2, H / 2 + 25);
       }
 
-      // Рендерим загруженную картинку лисенка
       if (customFoxImg.complete) {
         ctx.drawImage(customFoxImg, fox.x, fox.y, fox.w, fox.h);
       }
@@ -699,7 +703,6 @@
         if (it.y > H + 30) items.splice(i, 1);
       }
 
-      // Растаман
       ctx.fillStyle = "#1b1b1b";
       for (let i = -6; i <= 52; i += 7) ctx.fillRect(playerX + i, playerY + 18, 6, 26);
       ctx.fillStyle = "#e74c3c"; ctx.fillRect(playerX, playerY, 48, 7);
@@ -712,7 +715,7 @@
     loop();
   }
 
-  // 3. FLAPPY ШЕЛЛИ (С ОРИГИНАЛЬНОЙ КАРТИНКОЙ ШЕЛЛИ)
+  // 3. FLAPPY ШЕЛЛИ
   function initGame3() {
     document.getElementById('gameTitle').innerText = "💥 Flappy Шелли (Brawl Stars)";
     document.getElementById('gameHint').innerText = "Тапай для взлета! 1 стена = 5 очков (цель: 150)";
@@ -793,7 +796,6 @@
         ctx.fillText("Тапни, чтобы переиграть", W / 2, H / 2 + 45);
       }
 
-      // Рендерим загруженную оригинальную иконку Шелли
       if (customShellyImg.complete) {
         ctx.drawImage(customShellyImg, shelly.x - shelly.size/2, shelly.y - shelly.size/2, shelly.size, shelly.size);
       }
