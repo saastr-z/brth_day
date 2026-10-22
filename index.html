@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Birthday Roulette</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --card: #1c1c2e;
+      --accent: #ff007f;
+      --accent2: #00f0ff;
+      --text: #ffffff;
+      --gold: #ffd700;
+    }
+    * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+    body {
+      margin: 0; padding: 0; background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow-x: hidden; padding-bottom: 80px;
+    }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px 20px; background: rgba(28, 28, 46, 0.9);
+      position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #2a2a40;
+    }
+    .title { font-weight: 900; font-size: 18px; letter-spacing: 1px; background: linear-gradient(45deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .balance {
+      background: #2a2a40; padding: 6px 14px; border-radius: 20px;
+      font-weight: bold; color: var(--gold); display: flex; align-items: center; gap: 6px;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+    }
+    .tab-content { display: none; padding: 20px; text-align: center; }
+    .tab-content.active { display: block; }
+
+    /* Рулетка */
+    .wheel-wrapper {
+      position: relative; width: 310px; height: 310px; margin: 15px auto 25px;
+    }
+    .pointer {
+      position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0; border-left: 15px solid transparent;
+      border-right: 15px solid transparent; border-top: 30px solid var(--gold);
+      z-index: 5; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.6));
+    }
+    #wheelCanvas {
+      width: 100%; height: 100%; border-radius: 50%;
+      box-shadow: 0 0 25px rgba(255, 0, 127, 0.4);
+      transition: transform 4.5s cubic-bezier(0.15, 0.85, 0.15, 1);
+    }
+    .btn {
+      background: linear-gradient(45deg, var(--accent), #7928ca);
+      border: none; color: white; padding: 14px 28px; font-size: 17px;
+      font-weight: bold; border-radius: 14px; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4); width: 100%; max-width: 300px;
+      transition: transform 0.1s, opacity 0.2s; margin: 6px 0;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn:disabled { background: #444; box-shadow: none; color: #888; cursor: not-allowed; }
+    .btn-secondary { background: linear-gradient(45deg, #2a2a40, #3a3a55); box-shadow: none; border: 1px solid var(--accent2); }
+
+    /* Карточки */
+    .card {
+      background: var(--card); border-radius: 16px; padding: 16px;
+      margin-bottom: 15px; text-align: left; border: 1px solid #2e2e48;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    }
+    .card-info h3 { margin: 0 0 6px 0; font-size: 16px; }
+    .card-info p { margin: 0; font-size: 13px; color: #aaa; }
+    .reward-badge {
+      background: rgba(255, 215, 0, 0.15); color: var(--gold);
+      padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: bold;
+      display: inline-block; margin-top: 6px;
+    }
+
+    /* Навигация */
+    nav {
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      background: #161625; display: flex; justify-content: space-around;
+      padding: 10px 0; border-top: 1px solid #2a2a40; z-index: 10;
+    }
+    .nav-btn {
+      background: none; border: none; color: #777; font-size: 12px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      cursor: pointer; font-weight: bold;
+    }
+    .nav-btn.active { color: var(--accent2); }
+    .nav-btn span { font-size: 20px; }
+
+    /* Модалка приза */
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85); z-index: 100; justify-content: center;
+      align-items: center; padding: 20px;
+    }
+    .modal-content {
+      background: var(--card); padding: 25px; border-radius: 20px;
+      text-align: center; max-width: 340px; width: 100%;
+      border: 2px solid var(--gold); box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+      animation: pop 0.3s ease-out;
+    }
+    @keyframes pop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .prize-icon { font-size: 64px; margin: 10px 0; }
+    .prize-title { font-size: 20px; font-weight: 900; margin: 10px 0 20px; color: var(--gold); }
+
+    /* Игровой экран */
+    #gameModal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; z-index: 200; flex-direction: column;
+    }
+    .game-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 16px; background: #161625; color: #fff; font-weight: bold;
+    }
+    #gameCanvas { background: #111; width: 100%; flex: 1; touch-action: none; }
+    .game-controls-hint {
+      padding: 10px; text-align: center; background: #161625; color: #aaa; font-size: 13px;
+    }
+
+    input.promo-input {
+      width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #444;
+      background: #12121f; color: #fff; font-size: 16px; text-align: center;
+      margin-bottom: 12px; text-transform: uppercase; font-weight: bold;
+    }
+    .claimed-box {
+      background: linear-gradient(135deg, #1f2f1f, #152215);
+      border: 2px solid #00ff66; padding: 20px; border-radius: 16px; margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title">🎁 B-DAY ROULETTE</div>
+    <div class="balance">🪙 <span id="coinBalance">10</span></div>
+  </header>
+
+  <!-- Вкладка 1: Рулетка -->
+  <div id="tab-wheel" class="tab-content active">
+    <div id="activeRouletteSection">
+      <div class="wheel-wrapper">
+        <div class="pointer"></div>
+        <canvas id="wheelCanvas" width="500" height="500"></canvas>
+      </div>
+      <button id="spinBtn" class="btn" onclick="spinWheel()">КРУТИТЬ РУЛЕТКУ (5 🪙)</button>
+      <p style="font-size: 13px; color: #888; margin-top: 12px;">
+        Забрать можно только <b>один</b> финальный подарок!<br>Если приз не устроил — можно крутить дальше за 5 🪙.
+      </p>
+    </div>
+
+    <div id="claimedSection" style="display: none;">
+      <div class="claimed-box">
+        <div style="font-size: 55px;" id="claimedIcon">🎁</div>
+        <h2 style="margin: 10px 0; color: #00ff66;">ПОДАРОК ЗАБРАН!</h2>
+        <p style="font-size: 14px; color: #ccc;">Твой официальный приз на День Рождения:</p>
+        <h3 style="font-size: 22px; color: var(--gold); margin: 15px 0;" id="claimedTitle"></h3>
+        <p style="font-size: 12px; color: #888;">Сделай скриншот этого экрана и отправь Саше для получения подарка 🎉</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Вкладка 2: Мини-игры -->
+  <div id="tab-games" class="tab-content">
+    <h2 style="margin-top: 0;">🕹 Заработать монеты</h2>
+    <p style="font-size: 13px; color: #aaa; margin-bottom: 20px;">За каждую игру награду можно получить только 1 раз!</p>
+
+    <div class="card">
+      <div class="card-info">
+        <h3>🦊 Радужный Фурри-Ран</h3>
+        <p>Прыгай фурри-лисенком через гетеро-блоки на фоне ЛГБТ-флага. Цель: 150 метров.</p>
+        <div class="reward-badge">Награда: +5 🪙 (Легко)</div>
+      </div>
+      <button id="btn-game1" class="btn" style="width: auto; padding: 10px 18px;" onclick="startGame(1)">ИГРАТЬ</button>
+    </div>
+
+    <div class="card">
+      <div class="card-info">
+        <h3>🍁 Раста-Ловец</h3>
+        <p>Лови бонги и косяки (+4), уворачивайся от еды и воды (-2). Цель: 60 очков.</p>
+        <div class="reward-badge">Награда: +10 🪙 (Средне)</div>
+      </div>
+      <button id="btn-game2" class="btn" style="width: auto; padding: 10px 18px;" onclick="startGame(2)">ИГРАТЬ</button>
+    </div>
+
+    <div class="card">
+      <div class="card-info">
+        <h3>💥 Flappy Шелли (Хардкор)</h3>
+        <p>Пролети через стены из Brawl Stars. ОЧЕНЬ СЛОЖНО! Цель: 150 очков.</p>
+        <div class="reward-badge">Награда: +15 🪙 (Хардкор)</div>
+      </div>
+      <button id="btn-game3" class="btn" style="width: auto; padding: 10px 18px;" onclick="startGame(3)">ИГРАТЬ</button>
+    </div>
+  </div>
+
+  <!-- Вкладка 3: Промокод -->
+  <div id="tab-promo" class="tab-content">
+    <h2>🎟 Секретный промокод</h2>
+    <p style="font-size: 14px; color: #aaa; margin-bottom: 20px;">Введи секретный код, чтобы получить бонусные монеты на баланс.</p>
+    <input type="text" id="promoInput" class="promo-input" placeholder="ВВЕДИ ПРОМОКОД">
+    <button id="promoBtn" class="btn" onclick="activatePromo()">АКТИВИРОВАТЬ</button>
+    <p id="promoMsg" style="margin-top: 15px; font-weight: bold;"></p>
+  </div>
+
+  <!-- Модалка выпадения приза -->
+  <div id="prizeModal" class="modal">
+    <div class="modal-content">
+      <div style="font-size: 14px; color: #aaa;">ТЕБЕ ВЫПАЛО:</div>
+      <div class="prize-icon" id="modalPrizeIcon">🎁</div>
+      <div class="prize-title" id="modalPrizeTitle">Название приза</div>
+      <button class="btn" onclick="claimPrize()">✅ ЗАБРАТЬ И ВЫЙТИ</button>
+      <button id="spinAgainBtn" class="btn btn-secondary" onclick="spinAgain()">🔄 КРУТИТЬ ЕЩЕ (5 🪙)</button>
+    </div>
+  </div>
+
+  <!-- Экран игры -->
+  <div id="gameModal">
+    <div class="game-header">
+      <span id="gameTitle">Игра</span>
+      <span id="gameScore">Счет: 0</span>
+      <button onclick="closeGame()" style="background:#ff0055; border:none; color:#fff; padding:6px 12px; border-radius:8px; font-weight:bold;">Выйти</button>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div class="game-controls-hint" id="gameHint">Нажимай на экран для прыжка</div>
+  </div>
+
+  <nav>
+    <button class="nav-btn active" onclick="switchTab('wheel', this)"><span>🎡</span>Рулетка</button>
+    <button class="nav-btn" onclick="switchTab('games', this)"><span>🎮</span>Мини-игры</button>
+    <button class="nav-btn" onclick="switchTab('promo', this)"><span>🎟</span>Промокод</button>
+  </nav>
+
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+
+  // Список призов (равные шансы 1/8)
+  const PRIZES = [
+    { id: 0, title: "10 гр зеленого салата", short: "10г салата", icon: "🥗", color: "#2ecc71" },
+    { id: 1, title: "Поездка в желаемый город РФ за счет Саши", short: "Поездка в РФ", icon: "✈️", color: "#3498db" },
+    { id: 2, title: "Блок Мальборо Арома Фреш", short: "Блок Мальборо", icon: "🚬", color: "#e74c3c" },
+    { id: 3, title: "День рождения за счет Саши", short: "ДР за счет Саши", icon: "🥳", color: "#9b59b6" },
+    { id: 4, title: "5 бесплатных уроков по органической химии от Саши", short: "5 уроков химии", icon: "🧪", color: "#1abc9c" },
+    { id: 5, title: "Абонемент на полгода танцев на батутах", short: "Танцы на батутах", icon: "🤸", color: "#f39c12" },
+    { id: 6, title: "Новый бонг", short: "Новый бонг", icon: "🏺", color: "#27ae60" },
+    { id: 7, title: "5 Бравл Пассов", short: "5 Brawl Pass", icon: "🎟", color: "#e67e22" }
+  ];
+
+  // Состояние игрока
+  let state = JSON.parse(localStorage.getItem('bday_app_state_v1')) || {
+    coins: 10,
+    game1Done: false,
+    game2Done: false,
+    game3Done: false,
+    promoUsed: false,
+    claimedPrize: null
+  };
+
+  function saveState() {
+    localStorage.setItem('bday_app_state_v1', JSON.stringify(state));
+    updateUI();
+  }
+
+  function updateUI() {
+    document.getElementById('coinBalance').innerText = state.coins;
+    
+    // Проверка забранного приза
+    if (state.claimedPrize) {
+      document.getElementById('activeRouletteSection').style.display = 'none';
+      document.getElementById('claimedSection').style.display = 'block';
+      document.getElementById('claimedIcon').innerText = state.claimedPrize.icon;
+      document.getElementById('claimedTitle').innerText = state.claimedPrize.title;
+    } else {
+      document.getElementById('spinBtn').disabled = state.coins < 5 || isSpinning;
+    }
+
+    // Кнопки игр
+    const b1 = document.getElementById('btn-game1');
+    if (state.game1Done) { b1.innerText = "✅ ПРОЙДЕНО"; b1.disabled = true; }
+    const b2 = document.getElementById('btn-game2');
+    if (state.game2Done) { b2.innerText = "✅ ПРОЙДЕНО"; b2.disabled = true; }
+    const b3 = document.getElementById('btn-game3');
+    if (state.game3Done) { b3.innerText = "✅ ПРОЙДЕНО"; b3.disabled = true; }
+
+    // Промокод
+    if (state.promoUsed) {
+      document.getElementById('promoInput').disabled = true;
+      document.getElementById('promoInput').value = "STUPIDGAME";
+      document.getElementById('promoBtn').disabled = true;
+      document.getElementById('promoBtn').innerText = "✅ УЖЕ АКТИВИРОВАН";
+    }
+  }
+
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ==================== РУЛЕТКА ====================
+  const wheelCanvas = document.getElementById('wheelCanvas');
+  const wCtx = wheelCanvas.getContext('2d');
+  let currentRotation = 0;
+  let isSpinning = false;
+  let currentWonPrize = null;
+
+  function drawWheel() {
+    const num = PRIZES.length;
+    const arc = (2 * Math.PI) / num;
+    wCtx.clearRect(0, 0, 500, 500);
+
+    for (let i = 0; i < num; i++) {
+      const angle = i * arc - Math.PI / 2 - arc / 2;
+      wCtx.beginPath();
+      wCtx.fillStyle = PRIZES[i].color;
+      wCtx.moveTo(250, 250);
+      wCtx.arc(250, 250, 245, angle, angle + arc);
+      wCtx.lineTo(250, 250);
+      wCtx.fill();
+      wCtx.lineWidth = 3;
+      wCtx.strokeStyle = "#1c1c2e";
+      wCtx.stroke();
+
+      wCtx.save();
+      wCtx.translate(250, 250);
+      wCtx.rotate(angle + arc / 2);
+      wCtx.textAlign = "right";
+      wCtx.fillStyle = "#fff";
+      wCtx.font = "bold 20px sans-serif";
+      wCtx.fillText(PRIZES[i].icon + " " + PRIZES[i].short, 230, 7);
+      wCtx.restore();
+    }
+
+    // Центр колеса
+    wCtx.beginPath();
+    wCtx.fillStyle = "#1c1c2e";
+    wCtx.arc(250, 250, 35, 0, 2 * Math.PI);
+    wCtx.fill();
+    wCtx.lineWidth = 4;
+    wCtx.strokeStyle = "#ffd700";
+    wCtx.stroke();
+  }
+
+  function spinWheel() {
+    if (state.coins < 5 || isSpinning || state.claimedPrize) return;
+    state.coins -= 5;
+    isSpinning = true;
+    saveState();
+
+    // Абсолютно равный шанс 1 из 8
+    const winIndex = Math.floor(Math.random() * PRIZES.length);
+    currentWonPrize = PRIZES[winIndex];
+
+    const sliceDeg = 360 / PRIZES.length;
+    const targetDeg = (360 - winIndex * sliceDeg) % 360;
+    const extraSpins = 6 * 360;
+    const randomOffset = (Math.random() - 0.5) * (sliceDeg * 0.6);
+    
+    const nextRotation = currentRotation + extraSpins + ((targetDeg - (currentRotation % 360) + 360) % 360) + randomOffset;
+    currentRotation = nextRotation;
+
+    wheelCanvas.style.transform = `rotate(${currentRotation}deg)`;
+
+    setTimeout(() => {
+      isSpinning = false;
+      saveState();
+      showPrizeModal(currentWonPrize);
+    }, 4600);
+  }
+
+  function showPrizeModal(prize) {
+    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+    document.getElementById('modalPrizeIcon').innerText = prize.icon;
+    document.getElementById('modalPrizeTitle').innerText = prize.title;
+    
+    const spinAgainBtn = document.getElementById('spinAgainBtn');
+    if (state.coins >= 5) {
+      spinAgainBtn.innerText = "🔄 КРУТИТЬ ЕЩЕ (5 🪙)";
+    } else {
+      spinAgainBtn.innerText = "🕹 В МИНИ-ИГРЫ (НУЖНО 5 🪙)";
+    }
+    document.getElementById('prizeModal').style.display = 'flex';
+  }
+
+  function claimPrize() {
+    state.claimedPrize = currentWonPrize;
+    saveState();
+    document.getElementById('prizeModal').style.display = 'none';
+    confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 } });
+  }
+
+  function spinAgain() {
+    document.getElementById('prizeModal').style.display = 'none';
+    if (state.coins >= 5) {
+      spinWheel();
+    } else {
+      switchTab('games', document.querySelectorAll('.nav-btn')[1]);
+    }
+  }
+
+  // ==================== ПРОМОКОД ====================
+  function activatePromo() {
+    const val = document.getElementById('promoInput').value.trim().toUpperCase();
+    const msg = document.getElementById('promoMsg');
+    if (state.promoUsed) return;
+    if (val === 'STUPIDGAME') {
+      state.coins += 20;
+      state.promoUsed = true;
+      saveState();
+      msg.style.color = '#00ff66';
+      msg.innerText = '🎉 Промокод активирован! +20 монет!';
+      confetti({ particleCount: 80, spread: 60 });
+    } else {
+      msg.style.color = '#ff0055';
+      msg.innerText = '❌ Неверный промокод!';
+    }
+  }
+
+  // ==================== ДВИЖОК МИНИ-ИГР ====================
+  const gModal = document.getElementById('gameModal');
+  const gCanvas = document.getElementById('gameCanvas');
+  const ctx = gCanvas.getContext('2d');
+  let animId = null;
+  let activeGame = 0;
+
+  function startGame(id) {
+    activeGame = id;
+    gModal.style.display = 'flex';
+    gCanvas.width = window.innerWidth;
+    gCanvas.height = window.innerHeight - 95;
+
+    if (id === 1) initGame1();
+    if (id === 2) initGame2();
+    if (id === 3) initGame3();
+  }
+
+  function closeGame() {
+    cancelAnimationFrame(animId);
+    gModal.style.display = 'none';
+    gCanvas.onpointerdown = null;
+    gCanvas.onpointermove = null;
+    activeGame = 0;
+  }
+
+  function winGame(gameNum, reward) {
+    cancelAnimationFrame(animId);
+    if (gameNum === 1 && !state.game1Done) { state.game1Done = true; state.coins += reward; }
+    if (gameNum === 2 && !state.game2Done) { state.game2Done = true; state.coins += reward; }
+    if (gameNum === 3 && !state.game3Done) { state.game3Done = true; state.coins += reward; }
+    saveState();
+    confetti({ particleCount: 100, spread: 70 });
+    setTimeout(() => {
+      alert(`🏆 ПОБЕДА! Ты прошел испытание и получил +${reward} 🪙!`);
+      closeGame();
+    }, 100);
+  }
+
+  // ---------- ИГРА 1: ФУРРИ-ЛИСЕНОК ----------
+  function initGame1() {
+    document.getElementById('gameTitle').innerText = "🦊 Фурри-Ран (Цель: 150м)";
+    document.getElementById('gameHint').innerText = "Тапай по экрану, чтобы перепрыгивать гетеро-блоки!";
+
+    const W = gCanvas.width, H = gCanvas.height;
+    const groundY = H - 70;
+    let fox = { x: 45, y: groundY - 44, vy: 0, w: 44, h: 44, grounded: true };
+    let obstacles = [];
+    let distance = 0;
+    let speed = 5.5;
+    let spawnTimer = 60;
+    let gameOver = false;
+
+    const lgbtColors = ['#E40303', '#FF8C00', '#FFED00', '#008026', '#24408E', '#732982'];
+
+    gCanvas.onpointerdown = () => {
+      if (gameOver) { initGame1(); return; }
+      if (fox.grounded) { fox.vy = -13.5; fox.grounded = false; }
+    };
+
+    function drawPixelFox(x, y) {
+      // Пиксельный фурри-лисенок
+      ctx.fillStyle = "#ff6600";
+      ctx.fillRect(x + 8, y + 14, 26, 22); // тело
+      ctx.fillRect(x + 16, y + 4, 22, 18); // голова
+      // Ушки
+      ctx.fillStyle = "#cc4400";
+      ctx.fillRect(x + 16, y - 4, 6, 8);
+      ctx.fillRect(x + 30, y - 4, 6, 8);
+      // Белая мордочка и грудка и кончик хвоста
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(x + 30, y + 12, 10, 8);
+      ctx.fillRect(x + 22, y + 20, 12, 12);
+      // Пушистый хвост
+      ctx.fillStyle = "#ff6600";
+      ctx.fillRect(x - 6, y + 16, 14, 12);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(x - 10, y + 16, 6, 10);
+      // Глаз и нос
+      ctx.fillStyle = "#000";
+      ctx.fillRect(x + 30, y + 8, 4, 4);
+      ctx.fillRect(x + 38, y + 12, 4, 4);
+      // Лапки
+      ctx.fillRect(x + 10, y + 36, 6, 8);
+      ctx.fillRect(x + 26, y + 36, 6, 8);
+    }
+
+    function drawHeteroBlock(o) {
+      const stripes = 5;
+      const sh = o.h / stripes;
+      for (let i = 0; i < stripes; i++) {
+        ctx.fillStyle = (i % 2 === 0) ? "#000000" : "#ffffff";
+        ctx.fillRect(o.x, o.y + i * sh, o.w, sh);
+      }
+      ctx.strokeStyle = "#ff0055";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(o.x, o.y, o.w, o.h);
+    }
+
+    function loop() {
+      // Фон ЛГБТ флаг
+      const stripeH = groundY / 6;
+      for (let i = 0; i < 6; i++) {
+        ctx.fillStyle = lgbtColors[i];
+        ctx.fillRect(0, i * stripeH, W, stripeH + 1);
+      }
+      // Легкое затемнение для читаемости
+      ctx.fillStyle = "rgba(0,0,0,0.22)";
+      ctx.fillRect(0, 0, W, groundY);
+
+      // Земля
+      ctx.fillStyle = "#1c1c2e";
+      ctx.fillRect(0, groundY, W, H - groundY);
+      ctx.fillStyle = "#ffd700";
+      ctx.fillRect(0, groundY, W, 4);
+
+      if (!gameOver) {
+        fox.vy += 0.68;
+        fox.y += fox.vy;
+        if (fox.y >= groundY - fox.h) {
+          fox.y = groundY - fox.h;
+          fox.vy = 0;
+          fox.grounded = true;
+        }
+
+        spawnTimer--;
+        if (spawnTimer <= 0) {
+          const h = 36 + Math.random() * 24;
+          obstacles.push({ x: W + 20, y: groundY - h, w: 34, h: h });
+          spawnTimer = Math.floor(65 + Math.random() * 55);
+        }
+
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+          let o = obstacles[i];
+          o.x -= speed;
+          drawHeteroBlock(o);
+
+          // Коллизия
+          if (fox.x + 6 < o.x + o.w && fox.x + fox.w - 6 > o.x &&
+              fox.y + 6 < o.y + o.h && fox.y + fox.h > o.y) {
+            gameOver = true;
+          }
+          if (o.x + o.w < 0) obstacles.splice(i, 1);
+        }
+
+        distance += 0.12;
+        speed += 0.001;
+        const meters = Math.floor(distance);
+        document.getElementById('gameScore').innerText = `${meters} / 150 м`;
+
+        if (meters >= 150) {
+          winGame(1, 5);
+          return;
+        }
+      } else {
+        obstacles.forEach(drawHeteroBlock);
+        ctx.fillStyle = "rgba(0,0,0,0.75)";
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 24px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("💥 ВРЕЗАЛСЯ!", W / 2, H / 2 - 10);
+        ctx.font = "16px sans-serif";
+        ctx.fillText("Тапни по экрану, чтобы начать заново", W / 2, H / 2 + 25);
+      }
+
+      drawPixelFox(fox.x, fox.y);
+      animId = requestAnimationFrame(loop);
+    }
+    loop();
+  }
+
+  // ---------- ИГРА 2: РАСТА-ЛОВЕЦ ----------
+  function initGame2() {
+    document.getElementById('gameTitle').innerText = "🍁 Раста-Ловец (Цель: 60)";
+    document.getElementById('gameHint').innerText = "Води пальцем! Бонг/Косяк = +4 | Еда/Вода = -2";
+
+    const W = gCanvas.width, H = gCanvas.height;
+    let playerX = W / 2 - 28;
+    const playerY = H - 75;
+    let score = 0;
+    let items = [];
+    let spawnTimer = 25;
+
+    gCanvas.onpointermove = (e) => {
+      const rect = gCanvas.getBoundingClientRect();
+      playerX = (e.clientX - rect.left) - 28;
+      if (playerX < 0) playerX = 0;
+      if (playerX > W - 56) playerX = W - 56;
+    };
+    gCanvas.onpointerdown = gCanvas.onpointermove;
+
+    function drawRastaman(x, y) {
+      // Дреды
+      ctx.fillStyle = "#1a1a1a";
+      for (let i = -6; i <= 50; i += 8) {
+        ctx.fillRect(x + i, y + 18, 6, 26);
+      }
+      // Шапка Раста (Красный, Желтый, Зеленый)
+      ctx.fillStyle = "#e74c3c"; ctx.fillRect(x, y, 48, 7);
+      ctx.fillStyle = "#f1c40f"; ctx.fillRect(x, y + 7, 48, 7);
+      ctx.fillStyle = "#2ecc71"; ctx.fillRect(x, y + 14, 48, 7);
+      // Лицо
+      ctx.fillStyle = "#8d5524";
+      ctx.fillRect(x + 6, y + 21, 36, 26);
+      // Солнечные очки
+      ctx.fillStyle = "#000";
+      ctx.fillRect(x + 10, y + 25, 11, 8);
+      ctx.fillRect(x + 27, y + 25, 11, 8);
+      ctx.fillRect(x + 21, y + 27, 6, 3);
+      // Улыбка и косячок
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(x + 18, y + 39, 14, 4);
+      ctx.fillRect(x + 30, y + 37, 14, 4);
+      ctx.fillStyle = "#ff4500";
+      ctx.fillRect(x + 44, y + 37, 4, 4);
+    }
+
+    function drawItem(it) {
+      if (it.type === 'bong') {
+        // Рисуем бонг
+        ctx.fillStyle = "#00f0ff";
+        ctx.beginPath(); ctx.arc(it.x, it.y + 8, 12, 0, Math.PI * 2); ctx.fill();
+        ctx.fillRect(it.x - 5, it.y - 14, 10, 18);
+        ctx.fillStyle = "#2ecc71";
+        ctx.fillRect(it.x + 5, it.y, 8, 5);
+      } else if (it.type === 'joint') {
+        // Косяк
+        ctx.fillStyle = "#f5f5dc";
+        ctx.fillRect(it.x - 14, it.y - 4, 24, 8);
+        ctx.fillStyle = "#d2b48c";
+        ctx.fillRect(it.x - 18, it.y - 4, 5, 8);
+        ctx.fillStyle = "#ff4500";
+        ctx.fillRect(it.x + 10, it.y - 4, 5, 8);
+      } else if (it.type === 'water') {
+        ctx.font = "28px sans-serif";
+        ctx.fillText("💧", it.x - 14, it.y + 10);
+      } else {
+        ctx.font = "28px sans-serif";
+        ctx.fillText("🍔", it.x - 14, it.y + 10);
+      }
+    }
+
+    function loop() {
+      ctx.fillStyle = "#121a14";
+      ctx.fillRect(0, 0, W, H);
+
+      spawnTimer--;
+      if (spawnTimer <= 0) {
+        const isGood = Math.random() < 0.55;
+        const type = isGood ? (Math.random() < 0.5 ? 'bong' : 'joint') : (Math.random() < 0.5 ? 'water' : 'food');
+        items.push({
+          x: 25 + Math.random() * (W - 50),
+          y: -20,
+          vy: 3.5 + Math.random() * 2.8,
+          type: type,
+          good: isGood
+        });
+        spawnTimer = 22;
+      }
+
+      for (let i = items.length - 1; i >= 0; i--) {
+        let it = items[i];
+        it.y += it.vy;
+        drawItem(it);
+
+        if (it.y + 12 > playerY && it.y - 12 < playerY + 50 &&
+            it.x + 12 > playerX && it.x - 12 < playerX + 52) {
+          score += it.good ? 4 : -2;
+          if (score < 0) score = 0;
+          items.splice(i, 1);
+          document.getElementById('gameScore').innerText = `${score} / 60`;
+          if (score >= 60) {
+            winGame(2, 10);
+            return;
+          }
+          continue;
+        }
+        if (it.y > H + 30) items.splice(i, 1);
+      }
+
+      drawRastaman(playerX, playerY);
+      animId = requestAnimationFrame(loop);
+    }
+    loop();
+  }
+
+  // ---------- ИГРА 3: FLAPPY ШЕЛЛИ (BRAWL STARS ХАРДКОР) ----------
+  function initGame3() {
+    document.getElementById('gameTitle').innerText = "💥 Flappy Шелли (Цель: 150)";
+    document.getElementById('gameHint').innerText = "ХАРДКОР! 1 стенка = 5 очков. Набери 150 очков (30 стенок)!";
+
+    const W = gCanvas.width, H = gCanvas.height;
+    let shelly = { x: 65, y: H / 2, vy: 0, r: 16 };
+    let walls = [];
+    let score = 0;
+    let timer = 0;
+    let gameOver = false;
+
+    gCanvas.onpointerdown = () => {
+      if (gameOver) { initGame3(); return; }
+      shelly.vy = -8.2;
+    };
+
+    function drawShelly(x, y) {
+      // Фиолетовые волосы Шелли + желтая бандана
+      ctx.fillStyle = "#9b59b6";
+      ctx.beginPath(); ctx.arc(x, y, 18, 0, Math.PI * 2); ctx.fill();
+      // Лицо
+      ctx.fillStyle = "#e0ac69";
+      ctx.fillRect(x - 8, y - 4, 20, 14);
+      // Желтая бандана
+      ctx.fillStyle = "#f1c40f";
+      ctx.fillRect(x - 14, y - 10, 28, 6);
+      // Глаза и пластырь
+      ctx.fillStyle = "#000";
+      ctx.fillRect(x + 4, y - 1, 4, 4);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(x - 4, y + 2, 6, 3);
+      // Дробовик
+      ctx.fillStyle = "#555";
+      ctx.fillRect(x + 8, y + 6, 16, 6);
+    }
+
+    function drawBrawlWall(x, y, w, h) {
+      ctx.fillStyle = "#d35400";
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = "#e67e22";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x, y, w, h);
+      // Детали ящиков Brawl Stars
+      ctx.fillStyle = "#a04000";
+      for (let py = y + 10; py < y + h - 15; py += 35) {
+        ctx.fillRect(x + 6, py, w - 12, 20);
+      }
+    }
+
+    function loop() {
+      // Фон арены Brawl Stars
+      ctx.fillStyle = "#1e272e";
+      ctx.fillRect(0, 0, W, H);
+
+      if (!gameOver) {
+        shelly.vy += 0.46;
+        shelly.y += shelly.vy;
+
+        timer++;
+        if (timer % 78 === 0) {
+          // Узкий проход для хардкора
+          const gap = 118;
+          const topH = 50 + Math.random() * (H - gap - 120);
+          walls.push({ x: W, topH: topH, gap: gap, w: 52, passed: false });
+        }
+
+        for (let i = walls.length - 1; i >= 0; i--) {
+          let w = walls[i];
+          w.x -= 4.2; // Высокая скорость
+          drawBrawlWall(w.x, 0, w.w, w.topH);
+          drawBrawlWall(w.x, w.topH + w.gap, w.w, H - (w.topH + w.gap));
+
+          // Проверка удара
+          if (shelly.x + 13 > w.x && shelly.x - 13 < w.x + w.w) {
+            if (shelly.y - 13 < w.topH || shelly.y + 13 > w.topH + w.gap) {
+              gameOver = true;
+            }
+          }
+
+          if (!w.passed && w.x + w.w < shelly.x) {
+            w.passed = true;
+            score += 5; // 5 очков за колонну (30 колонн = 150 очков)
+            document.getElementById('gameScore').innerText = `${score} / 150`;
+            if (score >= 150) {
+              winGame(3, 15);
+              return;
+            }
+          }
+          if (w.x + w.w < 0) walls.splice(i, 1);
+        }
+
+        if (shelly.y + 15 > H || shelly.y - 15 < 0) gameOver = true;
+      } else {
+        walls.forEach(w => {
+          drawBrawlWall(w.x, 0, w.w, w.topH);
+          drawBrawlWall(w.x, w.topH + w.gap, w.w, H - (w.topH + w.gap));
+        });
+        ctx.fillStyle = "rgba(0,0,0,0.75)";
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = "#ff0055";
+        ctx.font = "bold 26px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("💀 ШЕЛЛИ СЛИЛАСЬ!", W / 2, H / 2 - 15);
+        ctx.fillStyle = "#fff";
+        ctx.font = "18px sans-serif";
+        ctx.fillText(`Твой счет: ${score} / 150`, W / 2, H / 2 + 15);
+        ctx.font = "15px sans-serif";
+        ctx.fillText("Тапни по экрану, чтобы попробовать еще раз", W / 2, H / 2 + 45);
+      }
+
+      drawShelly(shelly.x, shelly.y);
+      animId = requestAnimationFrame(loop);
+    }
+    loop();
+  }
+
+  // Инициализация
+  drawWheel();
+  updateUI();
+</script>
+</body>
+</html>
