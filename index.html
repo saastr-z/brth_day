@@ -189,7 +189,7 @@
     <div class="card">
       <div class="card-info">
         <h3>🍁 Раста-Ловец</h3>
-        <p>Лови бонги и косяки (+4), уворачивайся от еды и воды (-2). Цель: 60 очков.</p>
+        <p>Лови большие голубые колбы и косяки (+4), уворачивайся от еды и воды (-2). Цель: 60 очков.</p>
         <div class="reward-badge">Награда: +10 🪙</div>
       </div>
       <button id="btn-game2" class="btn" style="width: auto; padding: 10px 18px;" onclick="startGame(2)">ИГРАТЬ</button>
@@ -251,24 +251,24 @@
   const customShellyImg = new Image();
   customShellyImg.src = "шелли.webp";
 
-  // Сектора колеса: Главные призы, Монеты и Утешительные
+  // Сектора колеса с мини-призами (конфета 🍬)
   const PRIZES = [
     { id: 0, title: "10 гр зеленого салата", short: "10г салата", icon: "🥗", type: "main", c1: "#27ae60", c2: "#1e8449" },
     { id: 1, title: "+5 Монет на баланс!", short: "+5 монет", icon: "🪙", type: "coins", val: 5, c1: "#f39c12", c2: "#d35400" },
     { id: 2, title: "Поездка в желаемый город РФ за счет Саши", short: "Поездка в РФ", icon: "✈️", type: "main", c1: "#2980b9", c2: "#1f618d" },
-    { id: 3, title: "Стикерпак от Саши", short: "Стикерпак", icon: "📦", type: "comfort", c1: "#8e44ad", c2: "#6c3483" },
+    { id: 3, title: "Мини-приз", short: "Мини-приз", icon: "🍬", type: "comfort", c1: "#8e44ad", c2: "#6c3483" },
     { id: 4, title: "Блок Мальборо Арома Фреш", short: "Блок Мальборо", icon: "🚬", type: "main", c1: "#c0392b", c2: "#922b21" },
     { id: 5, title: "+10 Монет на баланс!", short: "+10 монет", icon: "🪙", type: "coins", val: 10, c1: "#f1c40f", c2: "#d68910" },
     { id: 6, title: "День рождения за счет Саши", short: "ДР от Саши", icon: "🥳", type: "main", c1: "#9b59b6", c2: "#7d3c98" },
-    { id: 7, title: "Энергетик", short: "Энергетик", icon: "⚡", type: "comfort", c1: "#16a085", c2: "#117864" },
+    { id: 7, title: "Мини-приз", short: "Мини-приз", icon: "🍬", type: "comfort", c1: "#16a085", c2: "#117864" },
     { id: 8, title: "5 бесплатных уроков по органической химии", short: "5 уроков химии", icon: "🧪", type: "main", c1: "#1abc9c", c2: "#148f77" },
     { id: 9, title: "Абонемент на полгода танцев на батутах", short: "Батуты 6 мес", icon: "🤸", type: "main", c1: "#d35400", c2: "#a04000" },
-    { id: 10, title: "Новый бонг", short: "Новый бонг", icon: "🏺", type: "main", c1: "#27ae60", c2: "#145a32" },
-    { id: 11, title: "Мемная открытка", short: "Открытка", icon: "💌", type: "comfort", c1: "#2980b9", c2: "#154360" },
+    { id: 10, title: "Новая большая голубая колба", short: "Голубая колба", icon: "🧪", type: "main", c1: "#00bcd4", c2: "#00838f" },
+    { id: 11, title: "Мини-приз", short: "Мини-приз", icon: "🍬", type: "comfort", c1: "#2980b9", c2: "#154360" },
     { id: 12, title: "5 Бравл Пассов", short: "5 Brawl Pass", icon: "🎟", type: "main", c1: "#e74c3c", c2: "#78281f" }
   ];
 
-  let state = JSON.parse(localStorage.getItem('bday_app_state_v5')) || {
+  let state = JSON.parse(localStorage.getItem('bday_app_state_v7')) || {
     coins: 10,
     game1Done: false,
     game2Done: false,
@@ -282,7 +282,7 @@
   let currentWonPrize = null;
 
   function saveState() {
-    localStorage.setItem('bday_app_state_v5', JSON.stringify(state));
+    localStorage.setItem('bday_app_state_v7', JSON.stringify(state));
     updateUI();
   }
 
@@ -432,14 +432,12 @@
     container.innerHTML = '';
 
     if (prize.type === 'main') {
-      // Нормальный приз -> «Забрать и выйти» или «Крутить еще»
       subtitle.innerText = "ТЕБЕ ВЫПАЛО:";
       container.innerHTML = `
         <button class="btn" onclick="claimPrize()">✅ ЗАБРАТЬ И ВЫЙТИ</button>
         <button class="btn btn-secondary" onclick="spinAgain()" style="margin-top:8px;">${state.coins >= 5 ? '🔄 КРУТИТЬ ЕЩЕ (5 🪙)' : '🕹 В МИНИ-ИГРЫ (НУЖНО 5 🪙)'}</button>
       `;
     } else if (prize.type === 'coins') {
-      // Монетки -> только кнопка «Забрать и крутить дальше»
       subtitle.innerText = "🪙 МОНЕТЫ ДОБАВЛЕНЫ!";
       state.coins += prize.val;
       saveState();
@@ -447,8 +445,7 @@
         <button class="btn" onclick="closeModalAndSpin()">🔄 ЗАБРАТЬ И КРУТИТЬ ДАЛЬШЕ</button>
       `;
     } else {
-      // Утешительный приз -> только кнопка «Забрать и крутить дальше»
-      subtitle.innerText = "🎁 УТЕШИТЕЛЬНЫЙ ПРИЗ!";
+      subtitle.innerText = "🍬 МИНИ-ПРИЗ!";
       container.innerHTML = `
         <button class="btn" onclick="closeModalAndSpin()">🔄 ЗАБРАТЬ И КРУТИТЬ ДАЛЬШЕ</button>
       `;
@@ -631,8 +628,11 @@
         ctx.fillText("Тапни для перезапуска", W / 2, H / 2 + 25);
       }
 
-      if (customFoxImg.complete) {
+      if (customFoxImg.complete && customFoxImg.naturalWidth !== 0) {
         ctx.drawImage(customFoxImg, fox.x, fox.y, fox.w, fox.h);
+      } else {
+        ctx.fillStyle = "#ff6600";
+        ctx.fillRect(fox.x, fox.y, fox.w, fox.h);
       }
       animId = requestAnimationFrame(loop);
     }
@@ -642,7 +642,7 @@
   // 2. РАСТА-ЛОВЕЦ
   function initGame2() {
     document.getElementById('gameTitle').innerText = "🍁 Раста-Ловец (Цель: 60)";
-    document.getElementById('gameHint').innerText = "Води пальцем! Бонг/Косяк = +4 | Еда/Вода = -2";
+    document.getElementById('gameHint').innerText = "Води пальцем! Колба/Косяк = +4 | Еда/Вода = -2";
 
     const W = gCanvas.width, H = gCanvas.height;
     let playerX = W / 2 - 28;
@@ -666,7 +666,7 @@
       spawnTimer--;
       if (spawnTimer <= 0) {
         const isGood = Math.random() < 0.58;
-        const type = isGood ? (Math.random() < 0.5 ? 'bong' : 'joint') : (Math.random() < 0.5 ? 'water' : 'food');
+        const type = isGood ? (Math.random() < 0.5 ? 'flask' : 'joint') : (Math.random() < 0.5 ? 'water' : 'food');
         items.push({
           x: 25 + Math.random() * (W - 50),
           y: -20,
@@ -681,8 +681,8 @@
         let it = items[i];
         it.y += it.vy;
         
-        ctx.font = "28px sans-serif";
-        let em = "🏺";
+        ctx.font = "30px sans-serif";
+        let em = "🧪";
         if (it.type === 'joint') em = "🚬";
         else if (it.type === 'water') em = "💧";
         else if (it.type === 'food') em = "🍔";
@@ -796,8 +796,11 @@
         ctx.fillText("Тапни, чтобы переиграть", W / 2, H / 2 + 45);
       }
 
-      if (customShellyImg.complete) {
+      if (customShellyImg.complete && customShellyImg.naturalWidth !== 0) {
         ctx.drawImage(customShellyImg, shelly.x - shelly.size/2, shelly.y - shelly.size/2, shelly.size, shelly.size);
+      } else {
+        ctx.fillStyle = "#8e44ad";
+        ctx.fillRect(shelly.x - shelly.size/2, shelly.y - shelly.size/2, shelly.size, shelly.size);
       }
       animId = requestAnimationFrame(loop);
     }
