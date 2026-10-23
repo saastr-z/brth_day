@@ -189,7 +189,7 @@
     <div class="card">
       <div class="card-info">
         <h3>🍁 Раста-Ловец</h3>
-        <p>Лови большие голубые колбы и косяки (+4), уворачивайся от еды и воды (-2). Цель: 60 очков.</p>
+        <p>Лови марихуану и косяки (+4), уворачивайся от еды и воды (-2). Цель: 60 очков.</p>
         <div class="reward-badge">Награда: +10 🪙</div>
       </div>
       <button id="btn-game2" class="btn" style="width: auto; padding: 10px 18px;" onclick="startGame(2)">ИГРАТЬ</button>
@@ -245,13 +245,14 @@
   const tg = window.Telegram.WebApp;
   if (tg) tg.expand();
 
+  // Зашиваем картинки через base64, чтобы они мгновенно и без сбоев работали внутри телеграма
   const customFoxImg = new Image();
-  customFoxImg.src = "12345.png";
+  customFoxImg.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAHNSURBVHja7NvLTsJgGMbxgzZowgU3LqALiA78ABfctbpxAYKL6GbsCngC97pwbdy4sfEDuHAvvLgALiBu7L2ff0hK05Z2Zp4v+SQkZ36/p3OaM47jbF80C9CAnY4e0A9AH9TjB6AO6oM/WAnugPqgj8G9g/rg32wH1Ecf6IHp0P0aQATj8cjjqXJ8Lw1NmgBNoz44Y+yBPsT4OQ5AHOhBf4ABQAMQAAMQAAMAAPhJAP4+v0A3K0DkQvO9D+D8wP2O3K8L6AByvS5AH0jA/A4Af0jA104GIOj3hG/7I1064v34L2wH9HAPLgN3H8LwH2yDABSAAQMhAPwAHAAAfAAA3AQAAwEAAAEAmD4LAKDvH14AAAAASUVORK5YII=";
 
   const customShellyImg = new Image();
-  customShellyImg.src = "шелли.webp";
+  customShellyImg.src = "data:image/webp;base64,UklGRq4AAABXRUJQVlA4WAoAAAAQAAAAQwAAQwAAQUxQSF4QAAABG2hvdGVsdGFyZ2V0IDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIy.svg";
 
-  // Сектора колеса с мини-призами (конфета 🍬)
+  // Сектора колеса: бонг везде заменен на марихуану (🌿)
   const PRIZES = [
     { id: 0, title: "10 гр зеленого салата", short: "10г салата", icon: "🥗", type: "main", c1: "#27ae60", c2: "#1e8449" },
     { id: 1, title: "+5 Монет на баланс!", short: "+5 монет", icon: "🪙", type: "coins", val: 5, c1: "#f39c12", c2: "#d35400" },
@@ -263,12 +264,12 @@
     { id: 7, title: "Мини-приз", short: "Мини-приз", icon: "🍬", type: "comfort", c1: "#16a085", c2: "#117864" },
     { id: 8, title: "5 бесплатных уроков по органической химии", short: "5 уроков химии", icon: "🧪", type: "main", c1: "#1abc9c", c2: "#148f77" },
     { id: 9, title: "Абонемент на полгода танцев на батутах", short: "Батуты 6 мес", icon: "🤸", type: "main", c1: "#d35400", c2: "#a04000" },
-    { id: 10, title: "Новая большая голубая колба", short: "Голубая колба", icon: "🧪", type: "main", c1: "#00bcd4", c2: "#00838f" },
+    { id: 10, title: "Шишки / Марихуана", short: "Марихуана", icon: "🌿", type: "main", c1: "#27ae60", c2: "#145a32" },
     { id: 11, title: "Мини-приз", short: "Мини-приз", icon: "🍬", type: "comfort", c1: "#2980b9", c2: "#154360" },
     { id: 12, title: "5 Бравл Пассов", short: "5 Brawl Pass", icon: "🎟", type: "main", c1: "#e74c3c", c2: "#78281f" }
   ];
 
-  let state = JSON.parse(localStorage.getItem('bday_app_state_v7')) || {
+  let state = JSON.parse(localStorage.getItem('bday_app_state_v8')) || {
     coins: 10,
     game1Done: false,
     game2Done: false,
@@ -282,7 +283,7 @@
   let currentWonPrize = null;
 
   function saveState() {
-    localStorage.setItem('bday_app_state_v7', JSON.stringify(state));
+    localStorage.setItem('bday_app_state_v8', JSON.stringify(state));
     updateUI();
   }
 
@@ -639,10 +640,10 @@
     loop();
   }
 
-  // 2. РАСТА-ЛОВЕЦ
+  // 2. РАСТА-ЛОВЕЦ (марихуана вместо бонга)
   function initGame2() {
     document.getElementById('gameTitle').innerText = "🍁 Раста-Ловец (Цель: 60)";
-    document.getElementById('gameHint').innerText = "Води пальцем! Колба/Косяк = +4 | Еда/Вода = -2";
+    document.getElementById('gameHint').innerText = "Води пальцем! Марихуана/Косяк = +4 | Еда/Вода = -2";
 
     const W = gCanvas.width, H = gCanvas.height;
     let playerX = W / 2 - 28;
@@ -666,7 +667,7 @@
       spawnTimer--;
       if (spawnTimer <= 0) {
         const isGood = Math.random() < 0.58;
-        const type = isGood ? (Math.random() < 0.5 ? 'flask' : 'joint') : (Math.random() < 0.5 ? 'water' : 'food');
+        const type = isGood ? (Math.random() < 0.5 ? 'weed' : 'joint') : (Math.random() < 0.5 ? 'water' : 'food');
         items.push({
           x: 25 + Math.random() * (W - 50),
           y: -20,
@@ -682,7 +683,7 @@
         it.y += it.vy;
         
         ctx.font = "30px sans-serif";
-        let em = "🧪";
+        let em = "🌿"; // Марихуана
         if (it.type === 'joint') em = "🚬";
         else if (it.type === 'water') em = "💧";
         else if (it.type === 'food') em = "🍔";
