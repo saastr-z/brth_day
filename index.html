@@ -179,8 +179,8 @@
 
     <div class="card">
       <div class="card-info">
-        <h3>🦊 Фурри-Ран (Лисенок)</h3>
-        <p>Прыгай кастомным лисенком через гетеро-блоки. Цель: 150 м.</p>
+        <h3>🌿 Раста-Ран (Прыжки от копов)</h3>
+        <p>Прыгай растаманом через полицейские машины на фоне марихуаны. Цель: 150 м.</p>
         <div class="reward-badge">Награда: +5 🪙</div>
       </div>
       <button id="btn-game1" class="btn" style="width: auto; padding: 10px 18px;" onclick="startGame(1)">ИГРАТЬ</button>
@@ -197,8 +197,8 @@
 
     <div class="card">
       <div class="card-info">
-        <h3>💥 Flappy Шелли (Brawl Stars)</h3>
-        <p>Полет с оригинальной иконкой Шелли сквозь стены. Цель: 150 очков.</p>
+        <h3>🚬 Flappy Раста</h3>
+        <p>Полет растаманом сквозь стены из косяков. Цель: 150 очков.</p>
         <div class="reward-badge">Награда: +15 🪙</div>
       </div>
       <button id="btn-game3" class="btn" style="width: auto; padding: 10px 18px;" onclick="startGame(3)">ИГРАТЬ</button>
@@ -245,14 +245,7 @@
   const tg = window.Telegram.WebApp;
   if (tg) tg.expand();
 
-  // Зашиваем картинки через base64, чтобы они мгновенно и без сбоев работали внутри телеграма
-  const customFoxImg = new Image();
-  customFoxImg.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAHNSURBVHja7NvLTsJgGMbxgzZowgU3LqALiA78ABfctbpxAYKL6GbsCngC97pwbdy4sfEDuHAvvLgALiBu7L2ff0hK05Z2Zp4v+SQkZ36/p3OaM47jbF80C9CAnY4e0A9AH9TjB6AO6oM/WAnugPqgj8G9g/rg32wH1Ecf6IHp0P0aQATj8cjjqXJ8Lw1NmgBNoz44Y+yBPsT4OQ5AHOhBf4ABQAMQAAMQAAMAAPhJAP4+v0A3K0DkQvO9D+D8wP2O3K8L6AByvS5AH0jA/A4Af0jA104GIOj3hG/7I1064v34L2wH9HAPLgN3H8LwH2yDABSAAQMhAPwAHAAAfAAA3AQAAwEAAAEAmD4LAKDvH14AAAAASUVORK5YII=";
-
-  const customShellyImg = new Image();
-  customShellyImg.src = "data:image/webp;base64,UklGRq4AAABXRUJQVlA4WAoAAAAQAAAAQwAAQwAAQUxQSF4QAAABG2hvdGVsdGFyZ2V0IDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIyLjQxIDIy.svg";
-
-  // Сектора колеса: бонг везде заменен на марихуану (🌿)
+  // Сектора колеса с новым призом «Новый бонг» и иконкой марихуаны
   const PRIZES = [
     { id: 0, title: "10 гр зеленого салата", short: "10г салата", icon: "🥗", type: "main", c1: "#27ae60", c2: "#1e8449" },
     { id: 1, title: "+5 Монет на баланс!", short: "+5 монет", icon: "🪙", type: "coins", val: 5, c1: "#f39c12", c2: "#d35400" },
@@ -264,12 +257,12 @@
     { id: 7, title: "Мини-приз", short: "Мини-приз", icon: "🍬", type: "comfort", c1: "#16a085", c2: "#117864" },
     { id: 8, title: "5 бесплатных уроков по органической химии", short: "5 уроков химии", icon: "🧪", type: "main", c1: "#1abc9c", c2: "#148f77" },
     { id: 9, title: "Абонемент на полгода танцев на батутах", short: "Батуты 6 мес", icon: "🤸", type: "main", c1: "#d35400", c2: "#a04000" },
-    { id: 10, title: "Шишки / Марихуана", short: "Марихуана", icon: "🌿", type: "main", c1: "#27ae60", c2: "#145a32" },
+    { id: 10, title: "Новый бонг", short: "Новый бонг", icon: "🌿", type: "main", c1: "#27ae60", c2: "#145a32" },
     { id: 11, title: "Мини-приз", short: "Мини-приз", icon: "🍬", type: "comfort", c1: "#2980b9", c2: "#154360" },
     { id: 12, title: "5 Бравл Пассов", short: "5 Brawl Pass", icon: "🎟", type: "main", c1: "#e74c3c", c2: "#78281f" }
   ];
 
-  let state = JSON.parse(localStorage.getItem('bday_app_state_v8')) || {
+  let state = JSON.parse(localStorage.getItem('bday_app_state_v9')) || {
     coins: 10,
     game1Done: false,
     game2Done: false,
@@ -283,7 +276,7 @@
   let currentWonPrize = null;
 
   function saveState() {
-    localStorage.setItem('bday_app_state_v8', JSON.stringify(state));
+    localStorage.setItem('bday_app_state_v9', JSON.stringify(state));
     updateUI();
   }
 
@@ -527,82 +520,99 @@
     }, 120);
   }
 
-  // 1. ИГРА С ЛИСЕНКОМ
+  // Рендер растамана для игр 1 и 3
+  function drawRastaman(x, y, w, h) {
+    ctx.save();
+    ctx.translate(x, y);
+    // Дреды
+    ctx.fillStyle = "#1b1b1b";
+    for (let i = -4; i <= w; i += 7) ctx.fillRect(i, h*0.3, 6, h*0.6);
+    // Шапка
+    ctx.fillStyle = "#e74c3c"; ctx.fillRect(0, 0, w, h*0.15);
+    ctx.fillStyle = "#f1c40f"; ctx.fillRect(0, h*0.15, w, h*0.15);
+    ctx.fillStyle = "#2ecc71"; ctx.fillRect(0, h*0.3, w, h*0.15);
+    // Лицо
+    ctx.fillStyle = "#8d5524"; ctx.fillRect(w*0.15, h*0.4, w*0.7, h*0.5);
+    // Очки
+    ctx.fillStyle = "#000";
+    ctx.fillRect(w*0.22, h*0.48, w*0.24, h*0.18);
+    ctx.fillRect(w*0.54, h*0.48, w*0.24, h*0.18);
+    ctx.restore();
+  }
+
+  // 1. ИГРА 1: РАСТА-РАН (Прыжки от копов на фоне марихуаны)
   function initGame1() {
-    document.getElementById('gameTitle').innerText = "🦊 Фурри-Ран (Лисенок)";
-    document.getElementById('gameHint').innerText = "Тапай для прыжка! Цель: 150м.";
+    document.getElementById('gameTitle').innerText = "🌿 Раста-Ран (Прыжки от копов)";
+    document.getElementById('gameHint').innerText = "Тапай для прыжка! Перепрыгивай полицейские машины!";
 
     const W = gCanvas.width, H = gCanvas.height;
     const groundY = H - 75;
-    let fox = { x: 50, y: groundY - 55, vy: 0, w: 52, h: 52, grounded: true };
+    let player = { x: 50, y: groundY - 55, vy: 0, w: 46, h: 52, grounded: true };
     let obstacles = [];
     let distance = 0;
     let speed = 5.6;
     let spawnTimer = 65;
     let gameOver = false;
-    const lgbtColors = ['#E40303', '#FF8C00', '#FFED00', '#008026', '#24408E', '#732982'];
 
     gCanvas.onpointerdown = () => {
       if (gameOver) { initGame1(); return; }
-      if (fox.grounded) { fox.vy = -14.2; fox.grounded = false; }
+      if (player.grounded) { player.vy = -14.2; player.grounded = false; }
     };
 
-    function drawObstacle(o) {
-      const stripes = 5;
-      const sh = o.h / stripes;
-      for (let i = 0; i < stripes; i++) {
-        ctx.fillStyle = (i % 2 === 0) ? "#0d0d0d" : "#ffffff";
-        ctx.fillRect(o.x, o.y + i * sh, o.w, sh);
-      }
-      ctx.strokeStyle = "#ff007f"; ctx.lineWidth = 2.5;
-      ctx.strokeRect(o.x, o.y, o.w, o.h);
-      ctx.fillStyle = "#ff007f"; ctx.font = "bold 15px sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("⚥", o.x + o.w / 2, o.y + o.h / 2 + 5);
+    function drawPoliceCar(o) {
+      // Пиксельная полицейская машина (блок)
+      ctx.fillStyle = "#1a1a2e";
+      ctx.fillRect(o.x, o.y + 10, o.w, o.h - 10);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(o.x + 6, o.y + 16, o.w - 12, 14);
+      // Мигалки (красная и синяя)
+      ctx.fillStyle = (Math.floor(Date.now() / 150) % 2 === 0) ? "#ff0000" : "#0000ff";
+      ctx.fillRect(o.x + o.w / 2 - 6, o.y, 12, 10);
+      // Колеса
+      ctx.fillStyle = "#000";
+      ctx.beginPath(); ctx.arc(o.x + 10, o.y + o.h, 6, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(o.x + o.w - 10, o.y + o.h, 6, 0, Math.PI*2); ctx.fill();
     }
 
     function loop() {
-      const stripeH = groundY / 6;
-      for (let i = 0; i < 6; i++) {
-        ctx.fillStyle = lgbtColors[i];
-        ctx.fillRect(0, i * stripeH, W, stripeH + 1);
-      }
-      ctx.fillStyle = "rgba(10, 10, 25, 0.25)";
-      ctx.fillRect(0, 0, W, groundY);
+      // Темный ночной раста-фон с падающими иконками марихуаны 🌿
+      ctx.fillStyle = "#0c140f";
+      ctx.fillRect(0, 0, W, H);
 
-      ctx.fillStyle = "#15162a";
+      ctx.font = "24px sans-serif";
+      ctx.fillStyle = "rgba(46, 204, 113, 0.15)";
+      ctx.fillText("🌿", (distance * 10) % W, 100);
+      ctx.fillText("🌿", (distance * 15) % W, 250);
+      ctx.fillText("🌿", (distance * 8) % W, 400);
+
+      // Земля
+      ctx.fillStyle = "#1b2a1e";
       ctx.fillRect(0, groundY, W, H - groundY);
-      ctx.fillStyle = "#ffd700";
+      ctx.fillStyle = "#2ecc71";
       ctx.fillRect(0, groundY, W, 4);
 
       if (!gameOver) {
-        fox.vy += 0.72;
-        fox.y += fox.vy;
-        if (fox.y >= groundY - fox.h) {
-          fox.y = groundY - fox.h;
-          fox.vy = 0;
-          fox.grounded = true;
+        player.vy += 0.72;
+        player.y += player.vy;
+        if (player.y >= groundY - player.h) {
+          player.y = groundY - player.h;
+          player.vy = 0;
+          player.grounded = true;
         }
 
         spawnTimer--;
         if (spawnTimer <= 0) {
-          const type = Math.random();
-          let w = 32, h = 44;
-          if (type < 0.35) { w = 26; h = 62; }
-          else if (type < 0.7) { w = 58; h = 34; }
-          else { w = 44; h = 50; }
-
-          obstacles.push({ x: W + 20, y: groundY - h, w: w, h: h });
-          spawnTimer = Math.floor(60 + Math.random() * 50);
+          obstacles.push({ x: W + 20, y: groundY - 38, w: 56, h: 38 });
+          spawnTimer = Math.floor(65 + Math.random() * 55);
         }
 
         for (let i = obstacles.length - 1; i >= 0; i--) {
           let o = obstacles[i];
           o.x -= speed;
-          drawObstacle(o);
+          drawPoliceCar(o);
 
-          if (fox.x + 8 < o.x + o.w && fox.x + fox.w - 8 > o.x &&
-              fox.y + 6 < o.y + o.h && fox.y + fox.h > o.y) {
+          if (player.x + 8 < o.x + o.w && player.x + player.w - 8 > o.x &&
+              player.y + 6 < o.y + o.h && player.y + player.h > o.y) {
             gameOver = true;
           }
           if (o.x + o.w < 0) obstacles.splice(i, 1);
@@ -618,29 +628,24 @@
           return;
         }
       } else {
-        obstacles.forEach(drawObstacle);
+        obstacles.forEach(drawPoliceCar);
         ctx.fillStyle = "rgba(0,0,0,0.75)";
         ctx.fillRect(0, 0, W, H);
         ctx.fillStyle = "#fff";
         ctx.font = "bold 24px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("💥 ВРЕЗАЛСЯ!", W / 2, H / 2 - 10);
+        ctx.fillText("🚔 ПОЙМАЛИ КОПЫ!", W / 2, H / 2 - 10);
         ctx.font = "16px sans-serif";
         ctx.fillText("Тапни для перезапуска", W / 2, H / 2 + 25);
       }
 
-      if (customFoxImg.complete && customFoxImg.naturalWidth !== 0) {
-        ctx.drawImage(customFoxImg, fox.x, fox.y, fox.w, fox.h);
-      } else {
-        ctx.fillStyle = "#ff6600";
-        ctx.fillRect(fox.x, fox.y, fox.w, fox.h);
-      }
+      drawRastaman(player.x, player.y, player.w, player.h);
       animId = requestAnimationFrame(loop);
     }
     loop();
   }
 
-  // 2. РАСТА-ЛОВЕЦ (марихуана вместо бонга)
+  // 2. РАСТА-ЛОВЕЦ
   function initGame2() {
     document.getElementById('gameTitle').innerText = "🍁 Раста-Ловец (Цель: 60)";
     document.getElementById('gameHint').innerText = "Води пальцем! Марихуана/Косяк = +4 | Еда/Вода = -2";
@@ -683,7 +688,7 @@
         it.y += it.vy;
         
         ctx.font = "30px sans-serif";
-        let em = "🌿"; // Марихуана
+        let em = "🌿";
         if (it.type === 'joint') em = "🚬";
         else if (it.type === 'water') em = "💧";
         else if (it.type === 'food') em = "🍔";
@@ -704,25 +709,19 @@
         if (it.y > H + 30) items.splice(i, 1);
       }
 
-      ctx.fillStyle = "#1b1b1b";
-      for (let i = -6; i <= 52; i += 7) ctx.fillRect(playerX + i, playerY + 18, 6, 26);
-      ctx.fillStyle = "#e74c3c"; ctx.fillRect(playerX, playerY, 48, 7);
-      ctx.fillStyle = "#f1c40f"; ctx.fillRect(playerX, playerY + 7, 48, 7);
-      ctx.fillStyle = "#2ecc71"; ctx.fillRect(playerX, playerY + 14, 48, 7);
-      ctx.fillStyle = "#8d5524"; ctx.fillRect(playerX + 6, playerY + 21, 36, 26);
-
+      drawRastaman(playerX, playerY, 48, 48);
       animId = requestAnimationFrame(loop);
     }
     loop();
   }
 
-  // 3. FLAPPY ШЕЛЛИ
+  // 3. FLAPPY РАСТА (Растаман летит сквозь косяки)
   function initGame3() {
-    document.getElementById('gameTitle').innerText = "💥 Flappy Шелли (Brawl Stars)";
-    document.getElementById('gameHint').innerText = "Тапай для взлета! 1 стена = 5 очков (цель: 150)";
+    document.getElementById('gameTitle').innerText = "🚬 Flappy Раста (Цель: 150)";
+    document.getElementById('gameHint').innerText = "Тапай для взлета! 1 стена из косяков = 5 очков";
 
     const W = gCanvas.width, H = gCanvas.height;
-    let shelly = { x: 70, y: H / 2, vy: 0, size: 42 };
+    let player = { x: 70, y: H / 2, vy: 0, size: 42 };
     let walls = [];
     let score = 0;
     let timer = 0;
@@ -730,27 +729,30 @@
 
     gCanvas.onpointerdown = () => {
       if (gameOver) { initGame3(); return; }
-      shelly.vy = -8.2;
+      player.vy = -8.2;
     };
 
-    function drawBrawlWall(x, y, w, h) {
-      ctx.fillStyle = "#b95c00";
+    function drawJointWall(x, y, w, h) {
+      ctx.fillStyle = "#d4ac0d";
       ctx.fillRect(x, y, w, h);
-      ctx.strokeStyle = "#e67e22"; ctx.lineWidth = 3;
+      ctx.strokeStyle = "#b7950b"; ctx.lineWidth = 3;
       ctx.strokeRect(x, y, w, h);
+      ctx.fillStyle = "#fff";
+      ctx.font = "20px sans-serif";
+      ctx.fillText("🚬", x + w/2 - 10, y + h/2);
     }
 
     function loop() {
-      ctx.fillStyle = "#191c2b";
+      ctx.fillStyle = "#0f1712";
       ctx.fillRect(0, 0, W, H);
 
       if (!gameOver) {
-        shelly.vy += 0.48;
-        shelly.y += shelly.vy;
+        player.vy += 0.48;
+        player.y += player.vy;
 
         timer++;
         if (timer % 78 === 0) {
-          const gap = 125;
+          const gap = 130;
           const topH = 50 + Math.random() * (H - gap - 120);
           walls.push({ x: W, topH: topH, gap: gap, w: 56, passed: false });
         }
@@ -758,17 +760,17 @@
         for (let i = walls.length - 1; i >= 0; i--) {
           let w = walls[i];
           w.x -= 4.3;
-          drawBrawlWall(w.x, 0, w.w, w.topH);
-          drawBrawlWall(w.x, w.topH + w.gap, w.w, H - (w.topH + w.gap));
+          drawJointWall(w.x, 0, w.w, w.topH);
+          drawJointWall(w.x, w.topH + w.gap, w.w, H - (w.topH + w.gap));
 
-          const r = shelly.size / 2 - 2;
-          if (shelly.x + r > w.x && shelly.x - r < w.x + w.w) {
-            if (shelly.y - r < w.topH || shelly.y + r > w.topH + w.gap) {
+          const r = player.size / 2 - 2;
+          if (player.x + r > w.x && player.x - r < w.x + w.w) {
+            if (player.y - r < w.topH || player.y + r > w.topH + w.gap) {
               gameOver = true;
             }
           }
 
-          if (!w.passed && w.x + w.w < shelly.x) {
+          if (!w.passed && w.x + w.w < player.x) {
             w.passed = true;
             score += 5;
             document.getElementById('gameScore').innerText = `${score} / 150`;
@@ -780,29 +782,24 @@
           if (w.x + w.w < 0) walls.splice(i, 1);
         }
 
-        if (shelly.y + 20 > H || shelly.y - 20 < 0) gameOver = true;
+        if (player.y + 20 > H || player.y - 20 < 0) gameOver = true;
       } else {
         walls.forEach(w => {
-          drawBrawlWall(w.x, 0, w.w, w.topH);
-          drawBrawlWall(w.x, w.topH + w.gap, w.w, H - (w.topH + w.gap));
+          drawJointWall(w.x, 0, w.w, w.topH);
+          drawJointWall(w.x, w.topH + w.gap, w.w, H - (w.topH + w.gap));
         });
         ctx.fillStyle = "rgba(0,0,0,0.75)";
         ctx.fillRect(0, 0, W, H);
         ctx.fillStyle = "#ff0055"; ctx.font = "bold 26px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("💀 ШЕЛЛИ ВЫБИТА!", W / 2, H / 2 - 15);
+        ctx.fillText("💨 ПЕРЕКУР ОКОНЧЕН!", W / 2, H / 2 - 15);
         ctx.fillStyle = "#fff"; ctx.font = "18px sans-serif";
         ctx.fillText(`Счет: ${score} / 150`, W / 2, H / 2 + 15);
         ctx.font = "15px sans-serif";
         ctx.fillText("Тапни, чтобы переиграть", W / 2, H / 2 + 45);
       }
 
-      if (customShellyImg.complete && customShellyImg.naturalWidth !== 0) {
-        ctx.drawImage(customShellyImg, shelly.x - shelly.size/2, shelly.y - shelly.size/2, shelly.size, shelly.size);
-      } else {
-        ctx.fillStyle = "#8e44ad";
-        ctx.fillRect(shelly.x - shelly.size/2, shelly.y - shelly.size/2, shelly.size, shelly.size);
-      }
+      drawRastaman(player.x - player.size/2, player.y - player.size/2, player.size, player.size);
       animId = requestAnimationFrame(loop);
     }
     loop();
